@@ -8,31 +8,92 @@
 <style>
   :root {
     --ink: #2c1a0e; --soft: #7a5c3a; --line: #f0e6d6; --accent: #c47c3a;
-    --paper: #fdf8f2; --tomato: #c0392b;
+    --paper: #fdf8f2; --tomato: #c0392b; --cream: #fff5ec;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'DM Sans',sans-serif; background:var(--paper); color:var(--ink); overflow-x:hidden; }
 
   /* ===== PAGE 1: LANDING ===== */
-  #landing-page {
+  .page {
     min-height:100vh; min-height:100dvh;
     display:flex; flex-direction:column;
     align-items:center; justify-content:center; text-align:center;
-    padding:3rem 2rem;
+    padding:2rem;
+  }
+  #landing {
+    flex-direction:column;
+    position:relative;
+    overflow:hidden;
     background:linear-gradient(135deg, #fff5ec 0%, #ffeedd 100%);
     transition:opacity 0.6s ease, transform 0.6s ease;
   }
-  #landing-page.hidden { opacity:0; transform:translateY(-20px); pointer-events:none; }
+  #landing::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(196,124,58,0.07) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(192,57,43,0.05) 0%, transparent 50%);
+    pointer-events:none;
+  }
+  #landing.hidden { opacity:0; transform:translateY(-20px); pointer-events:none; }
+  .hearts {
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+  }
+  .heart {
+    position:absolute;
+    font-size:1.8rem;
+    opacity:0.25;
+    animation:floatHeart ease-in-out infinite;
+  }
+  @keyframes floatHeart {
+    0%,100% { transform:translateY(0) rotate(-10deg); opacity:0.2; }
+    50% { transform:translateY(-18px) rotate(10deg); opacity:0.35; }
+  }
+  .landing-card {
+    position:relative;
+    z-index:1;
+    background:white;
+    border-radius:2rem;
+    padding:3.5rem 3rem;
+    max-width:520px;
+    width:100%;
+    border:1px solid #f0dfc8;
+    box-shadow:0 12px 60px rgba(180,100,60,0.12);
+  }
+  .tag {
+    display:inline-block;
+    background:var(--accent);
+    color:white;
+    font-size:0.72rem;
+    font-weight:600;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    padding:0.3rem 0.9rem;
+    border-radius:999px;
+    margin-bottom:1.5rem;
+    animation:slideDown 0.9s ease 0.02s both;
+  }
 
   .landing-title {
     font-family:'Playfair Display',serif;
-    font-size:clamp(2.8rem, 8vw, 5rem);
+    font-size:clamp(2.2rem, 6vw, 3.2rem);
     color:var(--ink);
-    line-height:1.2;
-    margin-bottom:2.5rem;
+    line-height:1.25;
+    margin-bottom:0.5rem;
     animation:slideDown 0.9s ease 0.1s both;
   }
   .landing-title em { font-style:italic; color:var(--accent); }
+  .landing-subtitle {
+    margin-bottom:2.5rem;
+    color:var(--soft);
+    font-size:1rem;
+    line-height:1.7;
+    animation:slideDown 0.9s ease 0.25s both;
+  }
 
   .reveal-btn {
     background:var(--tomato);
@@ -42,12 +103,14 @@
     font-size:1rem;
     padding:0.9rem 2.5rem;
     border:none;
-    border-radius:8px;
+    border-radius:10px;
     cursor:pointer;
-    transition:background 0.2s, transform 0.15s;
+    transition:background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow:0 4px 16px rgba(192,57,43,0.25);
     animation:slideDown 0.9s ease 0.4s both;
   }
-  .reveal-btn:hover { background:#a93226; transform:scale(1.04); }
+  .reveal-btn:hover { background:#a93226; transform:scale(1.04); box-shadow:0 6px 24px rgba(192,57,43,0.35); }
+  .reveal-btn:active { transform:scale(0.98); }
 
   @keyframes slideDown { from{opacity:0;transform:translateY(-18px);} to{opacity:1;transform:translateY(0);} }
 
@@ -144,7 +207,9 @@
   footer { position:relative; z-index:1; text-align:center; padding:2rem; font-size:0.82rem; color:var(--soft); background:var(--paper); }
 
   @media(max-width:600px){
+    .landing-card { padding:2.5rem 1.8rem; }
     .landing-title { font-size:2.2rem; }
+    .landing-subtitle { font-size:1rem; }
     .r-hero { padding:4rem 1.2rem; }
     .r-headline { font-size:2.2rem; }
     .r-sub { font-size:0.95rem; }
@@ -158,9 +223,18 @@
 <body>
 
 <!-- PAGE 1 -->
-<div id="landing-page">
-  <h1 class="landing-title"><em>Happy Anniversary</em></h1>
-  <button class="reveal-btn" onclick="goToReveal()">Open ✨</button>
+<div class="page" id="landing">
+  <div class="hearts" id="heartsContainer"></div>
+
+  <div class="landing-card">
+    <div class="tag">With Love 💛</div>
+    <h1 class="landing-title">
+      Happy Anniversary<br>
+      <em>Nani &amp; Nanu</em>
+    </h1>
+    <p class="landing-subtitle">We have something special to share with you.</p>
+    <button class="reveal-btn" onclick="showReveal()">Open Your Surprise ✨</button>
+  </div>
 </div>
 
 <!-- PAGE 2 -->
@@ -212,8 +286,12 @@
 </div>
 
 <script>
+  function showReveal() {
+    goToReveal();
+  }
+
   function goToReveal() {
-    const landing = document.getElementById('landing-page');
+    const landing = document.getElementById('landing');
     landing.classList.add('hidden');
     setTimeout(() => {
       landing.style.display = 'none';
@@ -224,6 +302,23 @@
       initObserver();
       window.scrollTo({ top:0, behavior:'instant' });
     }, 620);
+  }
+
+  function buildHearts() {
+    const wrap = document.getElementById('heartsContainer');
+    if (!wrap) return;
+    const hearts = ['💛','🧡','❤️','💕','✨'];
+    for (let i = 0; i < 10; i++) {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.textContent = hearts[i % hearts.length];
+      heart.style.left = (5 + Math.random() * 90) + '%';
+      heart.style.top = (5 + Math.random() * 90) + '%';
+      heart.style.animationDuration = (3 + Math.random() * 4) + 's';
+      heart.style.animationDelay = (Math.random() * 3) + 's';
+      heart.style.fontSize = (1.2 + Math.random() * 1.4) + 'rem';
+      wrap.appendChild(heart);
+    }
   }
 
   function buildBubbles() {
@@ -267,6 +362,8 @@
       }, i * 30);
     }
   }
+
+  buildHearts();
 </script>
 
 </body>
